@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volunteer Dashboard - CareLoop</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="navContainer"></div>
+
+  <main class="dashboard">
+    <div class="dashboard-header">
+      <h1>Volunteer Dashboard</h1>
+      <div class="trust-badge">
+        <div class="trust-score">
+          <div class="value" id="trustValue">—</div>
+          <div class="label">Reliability</div>
+        </div>
+        <span id="unreliableTag" class="unreliable-tag hidden">Unreliable</span>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <section class="panel">
+        <h2>Available Deliveries</h2>
+        <p style="color:var(--text-muted);margin-bottom:1rem;font-size:0.9rem;">
+          Accept verified donations. Urgent food items are highlighted in red.
+        </p>
+        <div class="donations-list" id="availableList"></div>
+      </section>
+
+      <section class="panel">
+        <h2>My Deliveries</h2>
+        <div class="donations-list" id="myDeliveriesList"></div>
+      </section>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="cancelModal">
+    <div class="modal">
+      <h3>Cancel Delivery</h3>
+      <form id="cancelForm">
+        <input type="hidden" id="cancelDonationId">
+        <div class="form-group">
+          <label>Reason (required)</label>
+          <textarea id="cancelReason" rows="3" required placeholder="Why are you cancelling?"></textarea>
+        </div>
+        <button type="submit" class="btn btn-danger">Confirm</button>
+        <button type="button" class="btn btn-outline" onclick="closeCancelModal()">Back</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/donations.js"></script>
+  <script>
+    const user = requireAuth('VOLUNTEER');
+    if (!user) throw new Error('auth');
+
+    document.getElementById('navContainer').innerHTML = buildDashboardNav(user);
+    initNotifications();
+    loadTrustScore();
+
+    async function loadAvailable() {
+      try {
+        const list = await DonationAPI.list();
+        const available = list.filter(d => d.status === 'VERIFIED');
+        renderDonations(document.getElementById('availableList'), available, (d) => `
+          <button class="btn btn-primary btn-sm" onclick="acceptTask(${d.id})">Accept Task</button>
+        `);
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function loadMyDeliveries() {
+      try {
+        const list = await DonationAPI.myDeliveries();
+        renderDonations(document.getElementById('myDeliveriesList'), list, (d) => {
+          let html = '';
+          if (d.status === 'ASSIGNED') {
+            html += `<button class="btn btn-primary btn-sm" onclick="startDelivery(${d.id})">Start Delivery</button>`;
+          }
+          if (d.status === 'OUT_FOR_DELIVERY') {
+            html += `<button class="btn btn-primary btn-sm" onclick="markDelivered(${d.id})">Mark Delivered</button>`;
+          }
+          if (['ASSIGNED', 'OUT_FOR_DELIVERY'].includes(d.status)) {
+            html += `<button class="btn btn-danger btn-sm" onclick="showCancelModal(${d.id}, refresh)">Cancel</button>`;
+          }
+          return html;
+        });
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    function refresh() {
+      loadAvailable();
+      loadMyDeliveries();
+    }
+
+    async function acceptTask(id) {
+      try {
+        await DonationAPI.assign(id);
+        refresh();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function startDelivery(id) {
+      try {
+        await DonationAPI.outForDelivery(id);
+        refresh();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function markDelivered(id) {
+      try {
+        await DonationAPI.deliver(id);
+        refresh();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    refresh();
+    setInterval(refresh, 60000);
+  </script>
+</body>
+</html>

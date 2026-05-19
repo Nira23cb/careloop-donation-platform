@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareLoop - Connecting Kindness in a Loop</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">♻</span> CareLoop
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how">How it Works</a>
+      <a href="login.html" class="btn btn-outline btn-sm">Login</a>
+      <a href="signup.html" class="btn btn-primary btn-sm">Get Started</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <h1>Connecting Kindness in a Loop</h1>
+    <p class="tagline">Donor → NGO Verification → Volunteer Delivery → Needy People</p>
+    <div class="hero-buttons">
+      <a href="signup.html" class="btn btn-primary">Start Giving</a>
+      <a href="signup.html" class="btn btn-outline">Join as NGO / Volunteer</a>
+    </div>
+    <div class="impact-bar" style="margin-top: 3rem;">
+      <p>Community Impact</p>
+      <div class="number" id="impactMeals">—</div>
+      <p>meals served through CareLoop</p>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <h2 class="section-title">Why CareLoop?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3>Anti-Fake Donations</h3>
+        <p>Only verified NGOs can approve donations. Every verified item gets a trusted badge.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🍱</div>
+        <h3>Food Safety</h3>
+        <p>Auto-expiry after 4 hours. Urgent donations highlighted in red with time-left countdown.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🚴</div>
+        <h3>Volunteer Network</h3>
+        <p>Delivery volunteers accept tasks and complete the kindness loop to those in need.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⭐</div>
+        <h3>Trust Score</h3>
+        <p>Reliability ratings and cancellation tracking keep the community accountable.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="how">
+    <h2 class="section-title">How It Works</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3>1. Donate</h3>
+        <p>Donors add food, clothes, books, or essentials with location and details.</p>
+      </div>
+      <div class="feature-card">
+        <h3>2. Verify</h3>
+        <p>NGOs verify each donation to prevent fake listings.</p>
+      </div>
+      <div class="feature-card">
+        <h3>3. Deliver</h3>
+        <p>Volunteers pick up and deliver to people who need it most.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>© 2026 CareLoop. Connecting Kindness in a Loop.</p>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script>
+    DonationAPI.impact().then(stats => {
+      document.getElementById('impactMeals').textContent = stats.mealsServed || 0;
+    }).catch(() => {
+      document.getElementById('impactMeals').textContent = '0';
+    });
+  </script>
+</body>
+</html>

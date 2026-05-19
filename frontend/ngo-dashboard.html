@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NGO Dashboard - CareLoop</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="navContainer"></div>
+
+  <main class="dashboard">
+    <div class="dashboard-header">
+      <h1>NGO Dashboard</h1>
+      <div class="trust-badge">
+        <div class="trust-score">
+          <div class="value" id="trustValue">—</div>
+          <div class="label">Reliability</div>
+        </div>
+        <span id="unreliableTag" class="unreliable-tag hidden">Unreliable</span>
+      </div>
+    </div>
+
+    <section class="panel">
+      <h2>Nearby Donations — Verify & Manage</h2>
+      <p style="color:var(--text-muted);margin-bottom:1rem;font-size:0.9rem;">
+        Only NGOs can verify donations. Verified items show a trusted badge to volunteers.
+      </p>
+      <div class="filters">
+        <select id="filterType">
+          <option value="">All types</option>
+          <option value="FOOD">Food</option>
+          <option value="CLOTHES">Clothes</option>
+          <option value="BOOKS">Books</option>
+          <option value="ESSENTIALS">Essentials</option>
+        </select>
+        <input type="text" id="filterLocation" placeholder="Filter by location">
+        <button class="btn btn-outline btn-sm" id="applyFilter">Filter</button>
+      </div>
+      <div class="donations-list" id="donationsList"></div>
+    </section>
+  </main>
+
+  <div class="modal-overlay" id="cancelModal">
+    <div class="modal">
+      <h3>Cancel Donation</h3>
+      <form id="cancelForm">
+        <input type="hidden" id="cancelDonationId">
+        <div class="form-group">
+          <label>Reason</label>
+          <textarea id="cancelReason" rows="3" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-danger">Confirm</button>
+        <button type="button" class="btn btn-outline" onclick="closeCancelModal()">Back</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/donations.js"></script>
+  <script>
+    const user = requireAuth('NGO');
+    if (!user) throw new Error('auth');
+
+    document.getElementById('navContainer').innerHTML = buildDashboardNav(user);
+    initNotifications();
+    loadTrustScore();
+
+    document.getElementById('applyFilter').addEventListener('click', loadDonations);
+
+    async function loadDonations() {
+      const type = document.getElementById('filterType').value;
+      const location = document.getElementById('filterLocation').value;
+      try {
+        const list = await DonationAPI.list(type, location);
+        renderDonations(document.getElementById('donationsList'), list, (d) => {
+          let html = '';
+          if (d.status === 'PENDING') {
+            html += `<button class="btn btn-primary btn-sm" onclick="verifyDonation(${d.id})">✓ Verify</button>`;
+          }
+          if (!['DELIVERED', 'EXPIRED', 'CANCELLED'].includes(d.status)) {
+            html += `<button class="btn btn-danger btn-sm" onclick="showCancelModal(${d.id}, loadDonations)">Cancel</button>`;
+          }
+          return html;
+        });
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function verifyDonation(id) {
+      try {
+        await DonationAPI.verify(id);
+        loadDonations();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    loadDonations();
+    setInterval(loadDonations, 60000);
+  </script>
+</body>
+</html>
