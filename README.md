@@ -116,7 +116,7 @@ PENDING → VERIFIED → ASSIGNED → OUT_FOR_DELIVERY → DELIVERED
 ![Login](screenshots/login.png)
 
 ### 📊 Donor Dashboard
-![Donor Dashboard](screenshots/donor.png)
+![Donor Dashboard](screenshots/donar.png)
 
 ### 🏢 NGO Dashboard
 ![NGO Dashboard](screenshots/ngo.png)
