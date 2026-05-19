@@ -107,4 +107,22 @@ PENDING → VERIFIED → ASSIGNED → OUT_FOR_DELIVERY → DELIVERED
 
 ---
 
+## 📸 Screenshots
+
+### 🏠 Home Page
+![Home Page](screenshots/home.png)
+
+### 🔐 Login Page
+![Login](screenshots/login.png)
+
+### 📊 Donor Dashboard
+![Donor Dashboard](screenshots/donor.png)
+
+### 🏢 NGO Dashboard
+![NGO Dashboard](screenshots/ngo.png)
+
+### 🚚 Volunteer Dashboard
+![Volunteer Dashboard](screenshots/delivery.png)
+
+
 © 2026 CareLoop
